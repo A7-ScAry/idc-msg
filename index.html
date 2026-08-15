@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>idc. A Quiz for the Unbothered</title>
+    <!-- Playful rounded font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti Library for the celebration page -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f4f8; /* Light blue-grey background */
+            --primary-dark: #1e293b; /* Dark navy for text */
+            --accent-color: #0ea5e9; /* Vibrant Blue */
+            --btn-shadow: #0284c7; /* Darker blue for shadow */
+            --white-shadow: #cbd5e1; /* Gray shadow for white buttons */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease-out;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            height: 100%;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            letter-spacing: -2px;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            line-height: 1.2;
+            margin: 20px 0;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--primary-dark);
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .subtext {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-top: 15px;
+        }
+
+        .accent-text {
+            color: var(--accent-color);
+        }
+        
+        .italic {
+            font-style: italic;
+        }
+
+        /* Progress Dots */
+        .progress-wrapper {
+            position: absolute;
+            top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .progress-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 2px solid var(--primary-dark);
+            opacity: 0.4;
+        }
+
+        .dot.active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            width: 20px;
+            border-radius: 10px;
+            opacity: 1;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            position: relative;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.1s;
+            min-width: 120px;
+        }
+
+        button:active {
+            transform: translateY(4px) !important;
+            box-shadow: none !important;
+        }
+
+        .btn-accent {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 6px 0 var(--btn-shadow);
+        }
+
+        .btn-white {
+            background-color: white;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-dark);
+            box-shadow: 0 6px 0 var(--white-shadow);
+        }
+        
+        .evasive-btn {
+            /* Extremely fast transition to make it impossible to click */
+            transition: transform 0.05s linear; 
+        }
+
+        /* Slider Styles */
+        .slider-container {
+            margin: 40px 0;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .slider-label {
+            font-weight: 700;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 200px;
+            background: transparent;
+            transform: rotate(-90deg);
+            margin: 100px 0;
+        }
+
+        input[type=range]:focus {
+            outline: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 35px;
+            cursor: pointer;
+            background: white;
+            border-radius: 20px;
+            border: 2px solid var(--primary-dark);
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            height: 45px;
+            width: 45px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            border: 3px solid var(--primary-dark);
+            box-shadow: inset 0 0 0 4px var(--accent-color);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><text y="18" font-size="16">💅</text></svg>');
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Shining Animated Stars */
+        .sparkle {
+            position: absolute;
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            animation: shine 1.5s infinite ease-in-out;
+            z-index: -1; 
+            pointer-events: none; 
+        }
+        
+        @keyframes shine {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        .footer-logo {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.7rem;
+            opacity: 0.4;
+            font-weight: 600;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SCREEN 1: Home -->
+        <div id="screen1" class="screen active">
+            <!-- Added a second star to Screen 1 -->
+            <div class="sparkle" style="left: 15%; top: 30%;">✦</div>
+            <div class="sparkle" style="right: 20%; bottom: 25%;">✦</div>
+            <h1>idc.</h1>
+            <div class="subtitle">A QUIZ FOR THE UNBOTHERED</div>
+            <h2>Do you really think I'm reading all of this?</h2>
+            <button class="btn-accent" onclick="nextScreen(2)" style="margin-top: 20px;">Next →</button>
+        </div>
+
+        <!-- SCREEN 2: Question 1 -->
+        <div id="screen2" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-title">IDC.</div>
+                <div class="progress-dots">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <!-- Added a second star to Screen 2 -->
+            <div class="sparkle" style="right: 15%; top: 25%;">✦</div>
+            <div class="sparkle" style="left: 15%; bottom: 35%;">✦</div>
+            <h2>No, like... do you <span class="accent-text italic">really</span> think I'm reading all of that?</h2>
+            <div class="btn-group">
+                <button class="btn-white evasive-btn">Yes</button>
+                <button class="btn-accent" onclick="nextScreen(3)">No</button>
+            </div>
+            <div class="subtext">(choose wisely)</div>
+        </div>
+
+        <!-- SCREEN 3: You're right -->
+        <div id="screen3" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-title">IDC.</div>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <!-- Added a second star to Screen 3 -->
+            <div class="sparkle" style="left: 25%; top: 25%;">✦</div>
+            <div class="sparkle" style="right: 20%; bottom: 30%;">✦</div>
+            <div style="font-size: 3rem; margin-bottom: -10px;">🎉</div>
+            <h2>You're right!<br>You're just wasting your time.</h2>
+            <div class="subtext" style="margin-bottom: 30px;">Absolutely nobody asked for that essay.</div>
+            <button class="btn-accent" onclick="nextScreen(4)">Continue 💀</button>
+        </div>
+
+        <!-- SCREEN 4: The Slider -->
+        <div id="screen4" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-title">IDC.</div>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <!-- Added a second star to Screen 4 -->
+            <div class="sparkle" style="left: 15%; top: 55%;">✦</div>
+            <div class="sparkle" style="right: 20%; top: 25%;">✦</div>
+            <h2>On a scale of "don't care at all" to "care sooo much"...</h2>
+            <div class="subtext">How much do I actually care about your message?</div>
+            
+            <div class="slider-container">
+                <div class="slider-label accent-text">I CARE SOOO MUCH 🥺</div>
+                <input type="range" min="0" max="100" value="0" id="care-slider">
+                <div class="slider-label" style="margin-top: -10px;">I DON'T CARE AT ALL 🙄</div>
+            </div>
+
+            <div id="oops-text" class="subtext accent-text hidden">Oops... it keeps slipping down 🤭</div>
+            <button id="ding-btn" class="btn-accent hidden" onclick="nextScreen(5)" style="margin-top: 15px;">DING DING DING 🔔</button>
+        </div>
+
+        <!-- SCREEN 5: Stop Texting -->
+        <div id="screen5" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-title">IDC.</div>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+            <div class="sparkle" style="left: 15%; bottom: 20%;">✦</div>
+            <div class="sparkle" style="right: 20%; top: 30%;">✦</div>
+            <h2>Can you please stop texting me?</h2>
+            
+            <div class="btn-group">
+                <button class="btn-accent" onclick="nextScreen(6)">Yes</button>
+                <button class="btn-white evasive-btn">No</button>
+            </div>
+            <div class="subtext">(there is only one right answer)</div>
+        </div>
+
+        <!-- SCREEN 6: Thank God -->
+        <div id="screen6" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-title">IDC.</div>
+                <div class="progress-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot active"></div>
+                </div>
+            </div>
+            <div class="sparkle" style="left: 20%; top: 15%;">✦</div>
+            <div class="sparkle" style="right: 25%; bottom: 25%;">✦</div>
+            
+            <h1 style="color: var(--primary-dark); font-size: 4rem;">THANK GOD</h1>
+            <h2 style="margin: 10px 0 20px 0;">💅💅💅</h2>
+            <div class="subtext" style="font-size: 1.1rem; color: var(--primary-dark);">Glad we could clear that up. Have the day you deserve! ✨</div>
+            
+            <div class="btn-group">
+                <button class="btn-accent">Share with a friend 💌</button>
+                <button class="btn-white" onclick="nextScreen(1)">Replay 🔄</button>
+            </div>
+            <div class="subtext" style="font-size: 0.8rem; margin-top: 20px;">Send this link to anyone whose essay-length texts you simply will not be reading.</div>
+        </div>
+        
+        <div class="footer-logo">idc. quiz · built for the unbothered</div>
+    </div>
+
+    <script>
+        // Screen Navigation Logic
+        function nextScreen(screenNumber) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            // Show target screen
+            document.getElementById('screen' + screenNumber).classList.add('active');
+
+            // Reset logic if going back to start
+            if (screenNumber === 1) {
+                document.getElementById('care-slider').value = 0;
+                document.getElementById('oops-text').classList.add('hidden');
+                document.getElementById('ding-btn').classList.add('hidden');
+                document.querySelectorAll('.evasive-btn').forEach(btn => {
+                    btn.style.transform = `translate(0px, 0px)`;
+                });
+            }
+
+            // Trigger Confetti Celebration on last screen
+            if (screenNumber === 6) {
+                fireConfetti();
+            }
+        }
+
+        // Slider Slipping Logic
+        const slider = document.getElementById('care-slider');
+        const oopsText = document.getElementById('oops-text');
+        const dingBtn = document.getElementById('ding-btn');
+
+        slider.addEventListener('input', (e) => {
+            if (parseInt(e.target.value) > 10) {
+                setTimeout(() => {
+                    e.target.value = 0; 
+                    oopsText.classList.remove('hidden');
+                    dingBtn.classList.remove('hidden');
+                }, 150); 
+            }
+        });
+
+        // Faster Global Evasive Button Logic
+        const evasiveButtons = document.querySelectorAll('.evasive-btn');
+        
+        evasiveButtons.forEach(btn => {
+            // Using mouseenter for faster trigger than mouseover
+            ['mouseenter', 'touchstart'].forEach(evt => 
+                btn.addEventListener(evt, function(e) {
+                    e.preventDefault();
+                    
+                    // Made the jump radius larger so it escapes the mouse completely
+                    const jumpX = (Math.random() - 0.5) * 350; 
+                    const jumpY = (Math.random() - 0.5) * 250; 
+                    
+                    this.style.transform = `translate(${jumpX}px, ${jumpY}px)`;
+                })
+            );
+        });
+
+        // Confetti Function for Screen 6
+        function fireConfetti() {
+            var duration = 3000; // 3 seconds of confetti
+            var end = Date.now() + duration;
+
+            (function frame() {
+                // Shoot from left edge
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#0ea5e9', '#38bdf8', '#bae6fd'] // Matching blue theme
+                });
+                // Shoot from right edge
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#0ea5e9', '#38bdf8', '#bae6fd']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+    </script>
+</body>
+</html>
