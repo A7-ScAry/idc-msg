@@ -283,7 +283,6 @@
     <div class="container">
         <!-- SCREEN 1: Home -->
         <div id="screen1" class="screen active">
-            <!-- Added a second star to Screen 1 -->
             <div class="sparkle" style="left: 15%; top: 30%;">✦</div>
             <div class="sparkle" style="right: 20%; bottom: 25%;">✦</div>
             <h1>idc.</h1>
@@ -304,7 +303,6 @@
                     <div class="dot"></div>
                 </div>
             </div>
-            <!-- Added a second star to Screen 2 -->
             <div class="sparkle" style="right: 15%; top: 25%;">✦</div>
             <div class="sparkle" style="left: 15%; bottom: 35%;">✦</div>
             <h2>No, like... do you <span class="accent-text italic">really</span> think I'm reading all of that?</h2>
@@ -327,7 +325,6 @@
                     <div class="dot"></div>
                 </div>
             </div>
-            <!-- Added a second star to Screen 3 -->
             <div class="sparkle" style="left: 25%; top: 25%;">✦</div>
             <div class="sparkle" style="right: 20%; bottom: 30%;">✦</div>
             <div style="font-size: 3rem; margin-bottom: -10px;">🎉</div>
@@ -348,7 +345,6 @@
                     <div class="dot"></div>
                 </div>
             </div>
-            <!-- Added a second star to Screen 4 -->
             <div class="sparkle" style="left: 15%; top: 55%;">✦</div>
             <div class="sparkle" style="right: 20%; top: 25%;">✦</div>
             <h2>On a scale of "don't care at all" to "care sooo much"...</h2>
@@ -407,7 +403,7 @@
             <div class="subtext" style="font-size: 1.1rem; color: var(--primary-dark);">Glad we could clear that up. Have the day you deserve! ✨</div>
             
             <div class="btn-group">
-                <button class="btn-accent">Share with a friend 💌</button>
+                <button class="btn-accent" onclick="shareLink('https://idc-msg.vercel.app/', this)">Share with a friend 💌</button>
                 <button class="btn-white" onclick="nextScreen(1)">Replay 🔄</button>
             </div>
             <div class="subtext" style="font-size: 0.8rem; margin-top: 20px;">Send this link to anyone whose essay-length texts you simply will not be reading.</div>
@@ -443,6 +439,28 @@
             // Trigger Confetti Celebration on last screen
             if (screenNumber === 6) {
                 fireConfetti();
+            }
+        }
+
+        // Sharing Logic
+        function shareLink(url, btnElement) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'idc. Quiz',
+                    text: 'A quiz for the unbothered.',
+                    url: url
+                }).catch(console.error);
+            } else {
+                // Fallback: Copy to clipboard if web share API isn't supported
+                navigator.clipboard.writeText(url).then(() => {
+                    const originalText = btnElement.innerHTML;
+                    btnElement.innerHTML = 'Link Copied! ✅';
+                    setTimeout(() => {
+                        btnElement.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    alert("Here is the link: " + url);
+                });
             }
         }
 
